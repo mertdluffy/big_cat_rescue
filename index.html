@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Overlay Logo on Image</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+      text-align: center;
+    }
+    #uploadSection {
+      margin-bottom: 20px;
+    }
+    #imageInput {
+      display: block;
+      margin-bottom: 10px;
+    }
+    #resultImage {
+      max-width: 100%;
+      margin-top: 20px;
+      border: 2px solid #ccc;
+      border-radius: 5px;
+    }
+    #downloadButton {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-top: 20px;
+      transition: background-color 0.3s ease;
+    }
+    #downloadButton:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+<div id="uploadSection">
+  <!-- Input element for uploading image -->
+  <input type="file" id="imageInput">
+  <!-- Download button -->
+  <button id="downloadButton" style="display: none;">Download</button>
+</div>
+
+<!-- Display area for result image -->
+<img id="resultImage" alt="Result Image">
+
+
+<script>
+  // Function to generate random coordinates within the specified range
+  function getRandomCoordinate(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  // Function to handle image upload
+  document.getElementById('imageInput').addEventListener('change', function(event) {
+    const imageFile = event.target.files[0];
+    const imageUrl = URL.createObjectURL(imageFile);
+
+    const resultImage = document.getElementById('resultImage');
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+
+    // Draw uploaded image onto canvas
+    const image = new Image();
+    image.onload = function() {
+      canvas.width = image.width;
+      canvas.height = image.height;
+      context.drawImage(image, 0, 0);
+
+      // Draw static logo onto canvas at random position
+      const logo = new Image();
+      logo.onload = function() {
+        // Adjust logo size relative to the image
+        const logoWidth = image.width / 2; // Adjust the logo size relative to the image
+        const logoHeight = logoWidth * (logo.height / logo.width);
+
+        // Generate random coordinates for placing the logo
+        const posX = getRandomCoordinate(0, image.width - logoWidth);
+        const posY = getRandomCoordinate(0, image.height - logoHeight);
+
+        context.drawImage(logo, posX, posY, logoWidth, logoHeight);
+
+        // Display result image
+        resultImage.src = canvas.toDataURL();
+
+        // Show download button
+        document.getElementById('downloadButton').style.display = 'block';
+      };
+      logo.src = 'logo.png'; // Static logo source
+    };
+    image.src = imageUrl;
+  });
+
+  // Function to handle download button click
+  document.getElementById('downloadButton').addEventListener('click', function() {
+    const resultImage = document.getElementById('resultImage');
+    const downloadLink = document.createElement('a');
+    downloadLink.href = resultImage.src;
+    downloadLink.download = 'result_image.png'; // You can change the filename here
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  });
+</script>
+
+</body>
+</html>
